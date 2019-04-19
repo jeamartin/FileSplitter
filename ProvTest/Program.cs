@@ -9,6 +9,10 @@ namespace ProvTest
 {
     class Program
     {
+        /// <summary>
+        /// This was the old test project use the new test projet : FileSplitterTests
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             ImportedFactory t = ImportedFactory.Instance;
