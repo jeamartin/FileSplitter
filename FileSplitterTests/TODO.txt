@@ -36,23 +36,14 @@ tester toutes les méthodes sur des fichiers
 - format de fichier (comment le rendre extensible ?)
 
 options : 
--Opt-in : identification du fichier dans chaque parties 
+- Opt-in : identification du fichier dans chaque parties 
 - Offuscer le nom des parties (Opt-out)
 Il faut stocker les métadata (qui deviennent essentielles.)
+
+candidat pour le hash : à voir si on hash. HASH algo in MEF container ? 
+murmur3 https://gist.github.com/automatonic/3725443
 
 GUID dans le nom à rajouter aussi dans le header ? 
 il manquerait la quantité de part miniamle pour reconstituer le fichier.
 
-header (intel convention) v1: 
-A. File preambule (split)        5 bytes
-B. File format version           2 bytes
-C. Part index			         1 byte
-D. Total part count              1 byte
-E. Format de split 	             2 bytes (1 slice, 2 confetti, 3 shamir1024)
-F. Original file length          8 bytes
-G. Original file hash            8 bytes
-H. Original file name length     1 byte (0) mean it's not offuscated
-I. File name part                variable (only present if H > 0) size = H / D * (E overhead)
-J. File part					 variable size = F / D * (E overhead)
-
-
+header (intel convention) v1: see header class

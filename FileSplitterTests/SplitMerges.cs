@@ -26,8 +26,6 @@ namespace FileSplitterTests
             CreateFile("EvenByteFile.tst", EvenFileTest);
             CreateFile("OddByteFile.tst", OddFileTest);
             CreateFile("oldjoke.tst", LongFileTest);
-
-            DisplayByteArrayForFile(@"C:\Temp\oldjoke.jpg");
         }
 
         [TestMethod]

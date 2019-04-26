@@ -26,8 +26,9 @@ namespace FileSplitterLib
         static BigInteger RND_UPPER = BigInteger.Pow(2, 1023) - 1;//524287;//65535;//2147483647; //as secure as 32 bit secure :/ 
 
         static int SECRET_BYTE_SIZE = RND_UPPER.ToByteArray().Length;
-        static int READ_BYTE_SIZE = SECRET_BYTE_SIZE-1; //Sans le -1 on arrive sur une imprecision qui rend le résultat fautx
-        void test()
+        static int READ_BYTE_SIZE = SECRET_BYTE_SIZE-1; //Sans le -1 on arrive sur une imprecision qui rend le résultat faux
+
+        /*void test()
         {
             const int PARTS = 3;
             BigInteger secret = 123456;
@@ -37,7 +38,7 @@ namespace FileSplitterLib
 
             polys[0] = secret;
             for (int inum = 1; inum < polys.Length; inum++)
-                polys[inum] = RandomInRange(rng, 0, RND_UPPER);
+                polys[inum] = randomInRange(rng, 0, RND_UPPER);
 
             for (byte j = 1; j <= PARTS; j++)
                 shares[j-1] = evalPoly(polys, j);
@@ -49,7 +50,7 @@ namespace FileSplitterLib
             BigInteger retrivedSecret = lagrangeInterpolate(shares);
 
             Console.WriteLine("retrivedSecret" + retrivedSecret);
-        }
+        }*/
 
 
         public void Merge(string target, string source, Type readType, Type writeType)
@@ -57,7 +58,6 @@ namespace FileSplitterLib
             //test(); 
             //Console.WriteLine("<divmod>" + divmod(345698698, 10342456, RND_UPPER));
             //Console.WriteLine("c#special" + BigInteger.ModPow(345698698, 10342456, RND_UPPER));
-
 
             if (!readType.GetInterfaces().Contains(typeof(IGenReader)))
                 throw new Exception("Incompatible type reader");
@@ -73,14 +73,14 @@ namespace FileSplitterLib
                 {
                     throw new Exception("bad shrd file format.");
                 }
-                byte numberOfPart = getQtyTotal(header);
-                byte indexOfSource = getIndex(header);
-                long srcLength = getLengthFromHeader(header);
+                byte numberOfPart = Reusables.GetQtyTotal(header);
+                byte indexOfSource = Reusables.GetIndex(header);
+                long srcLength = Reusables.GetLengthFromHeader(header);
 
                 //2vérifier la présence des fichiers sources nécessaires
                 for (byte i = 0; i < numberOfPart; i++)
                 {
-                    string fileFullPath = getFileNameByIndex(source, i);
+                    string fileFullPath = Reusables.GetFileNameByIndex(source, i);
                     if (!File.Exists(fileFullPath))
                         throw new Exception("File not found" + fileFullPath);
                 }
@@ -99,7 +99,7 @@ namespace FileSplitterLib
                     for (byte i = 0; i < numberOfPart; i++)
                         if (i != indexOfSource)
                         {
-                            readers[i].Open(getFileNameByIndex(source, i));
+                            readers[i].Open(Reusables.GetFileNameByIndex(source, i));
                             readers[i].Read(ref header, 10);
                         }
                     //5instancier le writer nécessaire (target)
@@ -229,7 +229,7 @@ namespace FileSplitterLib
         /// <param name="a">a</param>
         /// <param name="b">b</param>
         /// <returns>The floored division</returns>
-        static BigInteger FlooredBigIntDiv(BigInteger a, BigInteger b)
+        static BigInteger flooredBigIntDiv(BigInteger a, BigInteger b)
         {
             if (a < 0)
             {
@@ -259,7 +259,7 @@ namespace FileSplitterLib
             {
                 //long quot = (long)(Math.Floor((decimal)a / (decimal)b));
 
-                BigInteger quot = FlooredBigIntDiv(a, b);
+                BigInteger quot = flooredBigIntDiv(a, b);
                 //quot = quot != 0 ? (quot % quot - 10000000000000) / 10000000000000: 0;//new BigInteger(Math.Floor((decimal)a / (decimal)b)); // new BigInteger(Math.Floor( (double)a  / (double)b));
                 //Console.WriteLine("a,b->" + a + " // " + b);
                 //Console.WriteLine("quot1->" + quot);
@@ -316,11 +316,11 @@ namespace FileSplitterLib
                     for (byte i = 0; i < numberOfPart; i++)
                     {
                         writer[i] = (IGenWriter)Activator.CreateInstance(writeType);
-                        writer[i].Open(writeFileName(source, targetFolder, i));
+                        writer[i].Open(Reusables.WriteFileName(source, targetFolder, i));
                     }
                     //écriture des metainfos en header.
                     for (byte i = 0; i < numberOfPart; i++)
-                        writer[i].Write(getHeader(sourceLength, numberOfPart, i), 10);
+                        writer[i].Write(Reusables.GetHeader(sourceLength, numberOfPart, i), 10);
 
                     int qtyRead = 0;
 
@@ -331,7 +331,7 @@ namespace FileSplitterLib
                         ubytes[READ_BYTE_SIZE] = 0;
                         polys[0] = new BigInteger(ubytes);//BitConverter.ToUInt32(curRead, 0);//curRead[i];//new BigInteger(curRead); 
                         for (int inum = 1; inum < polys.Length; inum++)
-                            polys[inum] = RandomInRange(rng, 0, RND_UPPER);
+                            polys[inum] = randomInRange(rng, 0, RND_UPPER);
 
 
                         for (byte j = 0; j < numberOfPart; j++)
@@ -370,7 +370,7 @@ namespace FileSplitterLib
         /// <param name="min">The minimum.</param>
         /// <param name="max">The maximum.</param>
         /// <returns>A pseudo-random BigInteger</returns>
-        BigInteger RandomInRange(RandomNumberGenerator rng, BigInteger min, BigInteger max)
+        BigInteger randomInRange(RandomNumberGenerator rng, BigInteger min, BigInteger max)
         {
             if (min > max)
             {
@@ -433,51 +433,6 @@ namespace FileSplitterLib
             return value;
         }
 
-        byte[] oneByteArray(byte b)
-        {
-            byte[] ret = new byte[1];
-            ret[0] = b;
-            return ret;
-        }
-
-        string writeFileName(string source, string targetFolder, byte index)
-        {
-            string ret = (targetFolder.LastIndexOf(@"\") == targetFolder.Length - 1 ? targetFolder : targetFolder + Path.DirectorySeparatorChar) +
-                Path.GetFileName(source) + "." + (index).ToString().PadLeft(3, '0') + "." + FileSplitterCommon.FILE_EXT;
-            return ret;
-        }
-
-        string getFileNameByIndex(string source, byte index)
-        {
-            return source.Substring(0, source.Length - 8) + (index).ToString().PadLeft(3, '0') + "." + FileSplitterCommon.FILE_EXT;
-        }
-
-        long getLengthFromHeader(byte[] header)
-        {
-            return BitConverter.ToInt64(header, 0);
-        }
-        byte getIndex(byte[] header)
-        {
-            return header[8];
-        }
-
-        byte getQtyTotal(byte[] header)
-        {
-            return header[9];
-        }
-
-        byte[] getHeader(long sourceLength, byte numberOfPart, byte index)
-        {
-            byte[] length = BitConverter.GetBytes(sourceLength);
-
-            byte[] ret = new byte[10];
-
-            length.CopyTo(ret, 0);
-            ret[8] = index;
-            ret[9] = numberOfPart;
-            return ret;
-        }
-
         BigInteger evalPoly(BigInteger[] polys, BigInteger x)
         {
             BigInteger ret = 0;
@@ -490,6 +445,5 @@ namespace FileSplitterLib
             }
             return ret;
         }
-
     }
 }

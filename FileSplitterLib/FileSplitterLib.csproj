@@ -45,8 +45,10 @@
   <ItemGroup>
     <Compile Include="FileReader.cs" />
     <Compile Include="FileWriter.cs" />
+    <Compile Include="Header.cs" />
     <Compile Include="HttpGet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reusables.cs" />
     <Compile Include="ShamirSecret.cs" />
     <Compile Include="ShredMergeBitByBit.cs" />
   </ItemGroup>

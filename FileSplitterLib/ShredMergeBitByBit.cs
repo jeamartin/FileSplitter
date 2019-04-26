@@ -37,14 +37,14 @@ namespace FileSplitterLib
                 {
                     throw new Exception("bad shrd file format.");
                 }
-                byte numberOfPart = getQtyTotal(header);
-                byte indexOfSource = getIndex(header);
-                long length = getLengthFromHeader(header);
+                byte numberOfPart = Reusables.GetQtyTotal(header);
+                byte indexOfSource = Reusables.GetIndex(header);
+                long length = Reusables.GetLengthFromHeader(header);
 
                 //2vérifier la présence des fichiers sources nécessaires
                 for (byte i = 0; i < numberOfPart; i++)
                 {
-                    string fileFullPath = getFileNameByIndex(source, i);
+                    string fileFullPath = Reusables.GetFileNameByIndex(source, i);
                     if (!File.Exists(fileFullPath))
                         throw new Exception("File not found" + fileFullPath);
                 }
@@ -63,7 +63,7 @@ namespace FileSplitterLib
                     for (byte i = 0; i < numberOfPart; i++)
                         if (i != indexOfSource)
                         {
-                            readers[i].Open(getFileNameByIndex(source, i));
+                            readers[i].Open(Reusables.GetFileNameByIndex(source, i));
                             readers[i].Read(ref header, 10);
                         }
                     //5instancier le writer nécessaire (target)
@@ -147,18 +147,18 @@ namespace FileSplitterLib
                     for (byte i = 0; i < numberOfPart; i++)
                     {
                         writer[i] = (IGenWriter)Activator.CreateInstance(writeType);
-                        writer[i].Open(writeFileName(source, targetFolder, i));
+                        writer[i].Open(Reusables.WriteFileName(source, targetFolder, i));
                     }
                     //écriture des metainfos en header.
                     for (byte i = 0; i < numberOfPart; i++)
-                        writer[i].Write(getHeader(sourceLength, numberOfPart, i), 10);
+                        writer[i].Write(Reusables.GetHeader(sourceLength, numberOfPart, i), 10);
 
                     int qtyRead = 0;
                     long cursor = 0;
                     byte[] curWrite = new byte[numberOfPart];
                     byte[] curWriteIndex = new byte[numberOfPart];
-                    initByteArray(ref curWrite);
-                    initByteArray(ref curWriteIndex);
+                    Reusables.InitByteArray(ref curWrite);
+                    Reusables.InitByteArray(ref curWriteIndex);
 
                     while ((qtyRead = reader.Read(ref curRead, 1024)) > 0)
                     {
@@ -180,7 +180,7 @@ namespace FileSplitterLib
                                 //4 si curwriteindex == 7 alors écrire curWrite[part] dans fsWrite[part]
                                 if (curWriteIndex[part] == 8)
                                 {
-                                    writer[part].Write(oneByteArray(curWrite[part]), 1);
+                                    writer[part].Write(Reusables.OneByteArray(curWrite[part]), 1);
                                     //puis réinitialiser curwrite[part] et curWriteIndexDePart
                                     curWrite[part] = 0;
                                     curWriteIndex[part] = 0;
@@ -192,7 +192,7 @@ namespace FileSplitterLib
                     //5 écrire le reste (s'il y en a un) de curWrite dans writer 
                     if (sourceLength % numberOfPart > 0)
                         for (byte i = 0; i < numberOfPart; i++)
-                            writer[i].Write(oneByteArray(curWrite[i]), 1);
+                            writer[i].Write(Reusables.OneByteArray(curWrite[i]), 1);
 
                 }
                 finally
@@ -202,57 +202,6 @@ namespace FileSplitterLib
                             writer[i].Dispose();
                 }
             }
-        }
-
-        long getLengthFromHeader(byte[] header)
-        {
-            return BitConverter.ToInt64(header, 0);
-        }
-        byte getIndex(byte[] header)
-        {
-            return header[8];
-        }
-
-        byte getQtyTotal(byte[] header)
-        {
-            return header[9];
-        }
-
-        string getFileNameByIndex(string source, byte index)
-        {
-            return source.Substring(0, source.Length - 8) + (index).ToString().PadLeft(3, '0') + "." + FileSplitterCommon.FILE_EXT;
-        }
-
-        byte[] oneByteArray(byte b)
-        {
-            byte[] ret = new byte[1];
-            ret[0] = b;
-            return ret;
-        }
-
-        string writeFileName(string source, string targetFolder, byte index)
-        {
-            string ret = (targetFolder.LastIndexOf(@"\") == targetFolder.Length - 1 ? targetFolder : targetFolder + Path.DirectorySeparatorChar) +
-                Path.GetFileName(source) + "." + (index).ToString().PadLeft(3, '0') + "." + FileSplitterCommon.FILE_EXT;
-            return ret;
-        }
-
-        void initByteArray(ref byte[] toInit)
-        {
-            for (int i = 0; i < toInit.Length; i++)
-                toInit[i] = 0;
-        }
-
-        byte[] getHeader(long sourceLength, byte numberOfPart, byte index)
-        {
-            byte[] length = BitConverter.GetBytes(sourceLength);
-
-            byte[] ret = new byte[10];
-
-            length.CopyTo(ret, 0);
-            ret[8] = index;
-            ret[9] = numberOfPart;
-            return ret;
         }
 
 
