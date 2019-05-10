@@ -32,27 +32,26 @@ namespace FileSplitterTests
             using (var writer = factory.GetWriterByProtocol("file"))
             {
                 writer.Open("fileWrite.tst");
-                writer.Write(new byte[2] { 65, 97 }, 2);
+                writer.BufferSize = 2;
+                writer.Buffer = new byte[2] { 65, 97 };
+                writer.Write(2);
             }
         }
 
         static void ReadFile()
         {
-            var buffer = new byte[2];
-
             using (var reader = factory.GetReaderByProtocol("file"))
             {
                 reader.Open("fileWrite.tst");
-                reader.Read(ref buffer, 2);
+                reader.BufferSize = 2;
+                reader.Read(2);
+                Assert.IsTrue(reader.Buffer[0] == 65 && reader.Buffer[1] == 97);
             }
-
-            Assert.IsTrue(buffer[0] == 65 && buffer[1] == 97);
         }
 
         [ClassCleanup()]
         public static void ClassCleanup()
         {
-
             try
             {
                 System.IO.File.Delete("fileWrite.tst");

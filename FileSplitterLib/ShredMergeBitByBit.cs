@@ -14,8 +14,14 @@ namespace FileSplitterLib
     [PartCreationPolicy(CreationPolicy.Shared)]
     public class ShredMergeBitByBit : IFileMerger, IFileSpliter
     {
-        public string Protocol {
+        public string UserName
+        {
             get { return "ByBit"; }
+        }
+
+        public Guid Protocol
+        {
+            get { return new Guid("0A8228B2-2F3F-4340-A6F3-91E070BAACEC"); }
         }
 
         static byte[] BYTE_MASK = new byte[] { 1, 2, 4, 8, 16, 32, 64, 128 };
@@ -28,25 +34,25 @@ namespace FileSplitterLib
             if (!writeType.GetInterfaces().Contains(typeof(IGenWriter)))
                 throw new Exception("Incompatible type writer");
 
-            byte[] header = new byte[10];
             //1déterminer le nombre de partie en lisant le header du fichier source
             using (var reader = (IGenReader)Activator.CreateInstance(readType))
             {
                 reader.Open(source);
-                if (reader.Read(ref header, 10) < 10)
+                reader.BufferSize = 10;
+                if (reader.Read(10) < 10)
                 {
                     throw new Exception("bad shrd file format.");
                 }
-                byte numberOfPart = Reusables.GetQtyTotal(header);
-                byte indexOfSource = Reusables.GetIndex(header);
-                long length = Reusables.GetLengthFromHeader(header);
+                byte numberOfPart = Reusables.GetQtyTotal(reader.Buffer);
+                byte indexOfSource = Reusables.GetIndex(reader.Buffer);
+                long length = Reusables.GetLengthFromHeader(reader.Buffer);
 
                 //2vérifier la présence des fichiers sources nécessaires
                 for (byte i = 0; i < numberOfPart; i++)
                 {
                     string fileFullPath = Reusables.GetFileNameByIndex(source, i);
                     if (!File.Exists(fileFullPath))
-                        throw new Exception("File not found" + fileFullPath);
+                        throw new Exception("File not found " + fileFullPath);
                 }
                 //3instancier les readers nécessaires
                 IGenReader[] readers = new IGenReader[numberOfPart];
@@ -61,19 +67,21 @@ namespace FileSplitterLib
                 {
                     //4avancer le pointeur jusqu'à la fin de l'en-tête. 
                     for (byte i = 0; i < numberOfPart; i++)
+                    {
                         if (i != indexOfSource)
                         {
                             readers[i].Open(Reusables.GetFileNameByIndex(source, i));
-                            readers[i].Read(ref header, 10);
+                            readers[i].BufferSize = 10;
+                            readers[i].Read(10);
                         }
+                        readers[i].BufferSize = 1;
+                    }
                     //5instancier le writer nécessaire (target)
                     using (var writer = (IGenWriter)Activator.CreateInstance(writeType))
                     {
                         writer.Open(target);
+                        writer.BufferSize = numberOfPart;
                         bool oneEndOfFile = false;
-                        byte[] curRead = new byte[numberOfPart];
-                        //byte[] curReadIndex = new byte[numberOfPart];
-                        byte[] writeBuffer = new byte[numberOfPart];
                         byte[] oneByteBuffer = new byte[1];
                         long totalWrited = 0;
 
@@ -82,40 +90,34 @@ namespace FileSplitterLib
                             //6 retrouver 1 byte de toutes les parties
                             for (byte i = 0; i < numberOfPart; i++)
                             {
-                                if (readers[i].Read(ref oneByteBuffer, 1) > 0)
-                                    curRead[i] = oneByteBuffer[0];
-                                else
-                                {
-                                    curRead[i] = 0;
+                                if (readers[i].Read(1) < 1)
+                                { 
+                                    readers[i].Buffer[0] = 0;
                                     oneEndOfFile = true;
                                 }
-                                //curReadIndex[i] = 0;
                             }
                             //7réunir les éléments dans le buffer.
-                            //if (!oneEndOfFile)
-                            //{
                             int position = 0;
                             for (byte i = 0; i < 8; i++)
                                 for (byte j = 0; j < numberOfPart; j++)
                                 {
                                     //Console.WriteLine((i * j) / 8 + "<->" + position / 8);
-                                    if ((curRead[j] & BYTE_MASK[i]) > 0)
-                                        writeBuffer[position / 8] += BYTE_MASK[position % 8];
+                                    if ((readers[j].Buffer[0] & BYTE_MASK[i]) > 0)
+                                        writer.Buffer[position / 8] += BYTE_MASK[position % 8];
                                     position++;
                                 }
-                            //}
                             //8écriture du buffer
                             if (!oneEndOfFile)
                             {
                                 byte qtyToWrite = totalWrited + numberOfPart > length ? (byte)(length - totalWrited) : numberOfPart;
 
-                                writer.Write(writeBuffer, qtyToWrite);
+                                writer.Write(qtyToWrite);
                                 totalWrited += qtyToWrite;
                             }
 
                             //9 réinit shorter than reassign ? 
-                            for (int i = 0; i < writeBuffer.Length; i++)
-                                writeBuffer[i] = 0;
+                            for (int i = 0; i < writer.Buffer.Length; i++)
+                                writer.Buffer[i] = 0;
                         }
                     }
                 }
@@ -136,53 +138,56 @@ namespace FileSplitterLib
 
             var writer = new IGenWriter[numberOfPart];
             string targetFolder = Path.GetDirectoryName(source);
-            long sourceLength = (new FileInfo(source)).Length; // a déplacer dans une méthode non couplée (ExtFile)
-            byte[] curRead = new byte[1024];
+            long sourceLength = (new FileInfo(source)).Length; //TODO: a déplacer dans une méthode non couplée (ExtFile)
+            const int READ_SIZE = 1024;
 
             using (var reader = (IGenReader)Activator.CreateInstance(readType))
             {
                 reader.Open(source);
+                reader.BufferSize = READ_SIZE;
                 try
                 {
+                    //écriture des metainfos en header.
                     for (byte i = 0; i < numberOfPart; i++)
                     {
                         writer[i] = (IGenWriter)Activator.CreateInstance(writeType);
                         writer[i].Open(Reusables.WriteFileName(source, targetFolder, i));
+                        writer[i].BufferSize = 10;
+                        writer[i].Buffer = Reusables.GetHeader(sourceLength, numberOfPart, i); 
+                        writer[i].Write(10);
+                        writer[i].BufferSize = 1;
+                        writer[i].Buffer[0] = 0;
                     }
-                    //écriture des metainfos en header.
-                    for (byte i = 0; i < numberOfPart; i++)
-                        writer[i].Write(Reusables.GetHeader(sourceLength, numberOfPart, i), 10);
 
                     int qtyRead = 0;
                     long cursor = 0;
-                    byte[] curWrite = new byte[numberOfPart];
                     byte[] curWriteIndex = new byte[numberOfPart];
-                    Reusables.InitByteArray(ref curWrite);
+                    
                     Reusables.InitByteArray(ref curWriteIndex);
 
-                    while ((qtyRead = reader.Read(ref curRead, 1024)) > 0)
+                    while ((qtyRead = reader.Read(READ_SIZE)) > 0)
                     {
                         //sourceLength += qtyRead;
                         for (int i = 0; i < qtyRead; i++)
                         {
-                            byte cur = curRead[i];
+                            byte cur = reader.Buffer[i];
                             for (byte j = 0; j < 8; j++)
                             {
                                 byte part = (byte)(cursor % numberOfPart);
                                 //1 copier le bit plus a droite dans curWrite part
                                 if ((cur & LESS_SIG_MASK) > 0)
-                                    curWrite[part] += (byte)Math.Pow(2, curWriteIndex[part]);
+                                    writer[part].Buffer[0] += (byte)Math.Pow(2, curWriteIndex[part]);
                                 //2incrémenter la partie a écrire
                                 curWriteIndex[part]++;
                                 //3 décaler le byte cur en fonction
                                 cur = (byte)(cur >> 1);
 
-                                //4 si curwriteindex == 7 alors écrire curWrite[part] dans fsWrite[part]
+                                //4 si curwriteindex == 7 alors écrire writer[part].Buffer dans writer[part]
                                 if (curWriteIndex[part] == 8)
                                 {
-                                    writer[part].Write(Reusables.OneByteArray(curWrite[part]), 1);
+                                    writer[part].Write(1);
                                     //puis réinitialiser curwrite[part] et curWriteIndexDePart
-                                    curWrite[part] = 0;
+                                    writer[part].Buffer[0] = 0;
                                     curWriteIndex[part] = 0;
                                 }
                                 cursor++;
@@ -192,7 +197,7 @@ namespace FileSplitterLib
                     //5 écrire le reste (s'il y en a un) de curWrite dans writer 
                     if (sourceLength % numberOfPart > 0)
                         for (byte i = 0; i < numberOfPart; i++)
-                            writer[i].Write(Reusables.OneByteArray(curWrite[i]), 1);
+                            writer[i].Write(1);
 
                 }
                 finally

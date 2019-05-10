@@ -77,6 +77,12 @@ namespace FileSplitterTests
         }
 
         [TestMethod]
+        public void SplitMergeEvenFileByEvenSliced()
+        {
+            SplitMerge(EvenFileTest, "EvenByteFile", "Sliced", "file", 2);
+        }
+
+        [TestMethod]
         public void SplitMergeLongFileByEvenByBit()
         {
             SplitMerge(LongFileTest, "oldjoke", "ByBit", "file", 2);
@@ -102,22 +108,23 @@ namespace FileSplitterTests
 
         void SplitMerge(byte[] testContent, string fileName, string splitProtocol, string RWProtocol, byte numberOfPart)
         {
-            var sh = factory.GetSpliterByProtocol(splitProtocol);
+            var sh = factory.GetSpliterByProtocol(factory.GetSpliterIdByName(splitProtocol));
             sh.Shred(fileName + ".tst", factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol), numberOfPart); //create EvenByteFile.tstshrd.000 & EvenByteFile.tstshrd.001
 
-            var mg = factory.GetMergerByProtocol(splitProtocol);
+            var mg = factory.GetMergerByProtocol(factory.GetSpliterIdByName(splitProtocol));
             mg.Merge(fileName + "Merge.tst", fileName + ".tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol));
 
-            var buffer = new byte[testContent.Length];
+            //var buffer = new byte[testContent.Length];
             using (var reader = factory.GetReaderByProtocol(RWProtocol))
             {
                 reader.Open(fileName + "Merge.tst");
-                reader.Read(ref buffer, testContent.Length);
+                reader.BufferSize = testContent.Length;
+                reader.Read(testContent.Length);
+                for (int i = 0; i < reader.BufferSize; i++)
+                    if (reader.Buffer[i] != testContent[i])
+                        throw new Exception("Contents are different !");
             }
 
-            for (int i = 0; i < buffer.Length; i++)
-                if (buffer[i] != testContent[i])
-                    throw new Exception("Contents are different !");
         }
 
         [ClassCleanup]
@@ -131,7 +138,7 @@ namespace FileSplitterTests
             }
             catch
             {
-                //if the delete is not possible I don't care.
+                //if the delete is not possible, nevermind.
             }
         }
 
@@ -140,7 +147,9 @@ namespace FileSplitterTests
             using (var writer = factory.GetWriterByProtocol("file"))
             {
                 writer.Open(name);
-                writer.Write(buffer, buffer.Length);
+                writer.BufferSize = buffer.Length;
+                writer.Buffer = buffer;
+                writer.Write(buffer.Length);
             }
         }
 
@@ -148,17 +157,18 @@ namespace FileSplitterTests
         {
             using (var reader = factory.GetReaderByProtocol("file"))
             {
-                var buffer = new byte[1024];
+                //var buffer = new byte[1024];
                 reader.Open(file);
+                reader.BufferSize = 1024;
                 int readed = 0, total = 0;
 
                 StringBuilder sb = new StringBuilder();
                 sb.Append("{");
-                while ((readed = reader.Read(ref buffer, buffer.Length)) > 0)
+                while ((readed = reader.Read(reader.BufferSize)) > 0)
                 {
                     total += readed;
                     for (int i = 0; i < readed; i++)
-                        sb.Append(buffer[i] + ",");
+                        sb.Append(reader.Buffer[i] + ",");
 
 
                 }

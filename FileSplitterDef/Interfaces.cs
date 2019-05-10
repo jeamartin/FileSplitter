@@ -11,35 +11,44 @@ namespace FileSplitterDef
         public const string FILE_EXT = "shrd";
     }
     //using FileStream for file or webrequest for http
-    public interface IGenReader : IDisposable
+    public interface IGenReader : IBufferized, IDisposable
     {
         string Protocol { get; }
         //open
         void Open(string targetUri);
         //read chunk
-        int Read(ref byte[] buffer, int count);
+        int Read(int count);
         //cloes
         new void Dispose();
     }
-    public interface IGenWriter : IDisposable
+    public interface IGenWriter : IBufferized, IDisposable
     {
         string Protocol { get; }
         //open
         void Open(string targetUri);
         //read chunk
-        void Write(byte[] buffer, int count);
+        void Write(int count);
         //close
         new void Dispose();
     }
 
+    public interface IBufferized
+    {
+        int BufferSize { get; set; }
+
+        byte[] Buffer { get; set; }
+    }
+
     public interface IFileMerger
     {
-        string Protocol { get; }
+        string UserName { get; }
+        Guid Protocol { get; }
         void Merge(string target, string source, Type readType, Type writeType);
     }
     public interface IFileSpliter
     {
-        string Protocol { get; }
+        string UserName { get; }
+        Guid Protocol { get; }
         void Shred(string source, Type readType, Type writeType, byte numberOfPart);
     }
 }

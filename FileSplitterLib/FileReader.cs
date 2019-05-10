@@ -14,21 +14,22 @@ namespace FileSplitterLib
     {
         FileStream reader;
         int bufferOffset = 0;
-        public FileReader()
-        {
+        int bufferSize;
+        byte[] buffer;
 
-        }
-        public string Protocol
-        {
-            get { return "file"; }
-        }
+        public int BufferSize { get => bufferSize; set { bufferSize = value; buffer = new byte[bufferSize]; } }
+
+        public byte[] Buffer { get => buffer; set => buffer = value; }
+
+        public string Protocol { get => "file"; }
+
         //open
         public void Open(string targetUri) 
         {
             reader = new FileStream(targetUri, FileMode.Open, FileAccess.Read); //File.Open(targetUri, FileMode.Open));
         }
         //read chunk
-        public int Read(ref byte[] buffer, int count)
+        public int Read(int count)
         {
             return reader.Read(buffer, bufferOffset, count);
         }

@@ -27,7 +27,7 @@ namespace FileSplitterLib
     public class Header
     {
         public const string FilePreambule = "split";
-        public ushort FileFormatVersion = 1;
+        public const ushort FileFormatVersion = 1;
 
         public ushort TotalHeaderSize => ((ushort) (55 + OriginalFileNameLength + OriginalFileHashLength));
 
@@ -38,7 +38,7 @@ namespace FileSplitterLib
         public ushort OriginalFileNameLength;
         public byte[] FileName;
         public Guid HashFormat = new Guid();
-        public ushort OriginalFileHashLength;
+        public ushort OriginalFileHashLength = 0;
         public byte[] Hash;
 
 
@@ -54,6 +54,7 @@ namespace FileSplitterLib
             SplitFormat.ToByteArray().CopyTo(ret, 11);
             BitConverter.GetBytes(OriginalFileLength).CopyTo(ret, 27);
             BitConverter.GetBytes(OriginalFileNameLength).CopyTo(ret, 29);
+            if(OriginalFileNameLength > 0)
             FileName.CopyTo(ret, 31);
             int index = 31 + OriginalFileNameLength;
 
@@ -61,7 +62,8 @@ namespace FileSplitterLib
             index += 16;
             BitConverter.GetBytes(OriginalFileHashLength).CopyTo(ret, index);
             index += sizeof(ushort);
-            Hash.CopyTo(ret, index);
+            if(OriginalFileHashLength > 0)
+                Hash.CopyTo(ret, index);
 
             return ret;
         }

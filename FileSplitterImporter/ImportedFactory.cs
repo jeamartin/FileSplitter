@@ -83,16 +83,33 @@ namespace FileSplitterImporter
             return this?.GetReaderList(value)?.Count() == 1 ;
         }
 
-        public IFileMerger GetMergerByProtocol(string value)
+        public IFileMerger GetMergerByProtocol(Guid value)
         {
             return (IFileMerger)mergers?.Where(s => s.Value.Protocol == value).FirstOrDefault().Value;
         }
 
-        public IFileSpliter GetSpliterByProtocol(string value)
+        public IFileSpliter GetSpliterByProtocol(Guid value)
         {
             return (IFileSpliter)spliters?.Where(s => s.Value.Protocol == value).FirstOrDefault().Value;
         }
 
+        public Guid GetMergerIdByName(string name)
+        {
+            foreach (var com in mergers)
+                if (com.Value?.UserName == name)
+                    return com.Value.Protocol;
+
+            throw new Exception("GetMergerIdByName name doesn't exists");
+        }
+
+        public Guid GetSpliterIdByName(string name)
+        {
+            foreach (var com in spliters)
+                if (com.Value?.UserName == name)
+                    return com.Value.Protocol;
+
+            throw new Exception("GetSpliterIdByName name doesn't exists");
+        }
 
         public IGenWriter GetWriterByProtocol(string value)
         {

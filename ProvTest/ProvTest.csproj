@@ -59,6 +59,10 @@
       <Project>{380460ee-095f-4cd4-8212-eea57d9ecae1}</Project>
       <Name>FileSplitterImporter</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FileSplitterLib\FileSplitterLib.csproj">
+      <Project>{249f69d9-acd3-4d31-b95b-64a7ae782d80}</Project>
+      <Name>FileSplitterLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

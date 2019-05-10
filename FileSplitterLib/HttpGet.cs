@@ -13,12 +13,15 @@ namespace FileSplitterLib
     [Export(typeof(IGenReader))]
     public class HttpGet: IGenReader
     {
-         MemoryStream stream;
-        
-        public string Protocol
-        {
-            get { return "http"; }
-        }
+        MemoryStream stream;
+        int bufferSize;
+        byte[] buffer;
+
+        public int BufferSize { get => bufferSize; set { bufferSize = value; buffer = new byte[bufferSize]; } }
+
+        public byte[] Buffer { get => buffer; set => buffer = value; }
+
+        public string Protocol { get => "http"; }
 
         public void Open(string targetUri)
         {
@@ -27,9 +30,9 @@ namespace FileSplitterLib
             HttpResponseMessage response = client.GetAsync(targetUri).Result;
             
             stream = new MemoryStream(response.Content.ReadAsByteArrayAsync().Result);
-
         }
-        public int Read(ref byte[] buffer, int count)
+
+        public int Read(int count)
         {
             return stream.Read(buffer, 0, count);
         }

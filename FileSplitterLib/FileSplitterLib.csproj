@@ -51,6 +51,7 @@
     <Compile Include="Reusables.cs" />
     <Compile Include="ShamirSecret.cs" />
     <Compile Include="ShredMergeBitByBit.cs" />
+    <Compile Include="Sliced.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FileSplitterDef\FileSplitterDef.csproj">

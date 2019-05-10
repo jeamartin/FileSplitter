@@ -13,23 +13,26 @@ namespace FileSplitterLib
     public class FileWriter : IGenWriter
     {
         FileStream writer;
-        public FileWriter()
-        {
+        int bufferSize;
+        byte[] buffer;
 
-        }
-        public string Protocol
-        {
-            get { return "file"; }
-        }
+        public int BufferSize { get => bufferSize; set { bufferSize = value; buffer = new byte[bufferSize]; } }
+
+        public byte[] Buffer { get => buffer; set => buffer = value; }
+
+        public string Protocol { get => "file"; }
+
         public void Open(string targetUri)
         {
             writer = new FileStream(targetUri, FileMode.Create, FileAccess.Write);
         }
-        public void Write(byte[] buffer, int count)
+
+        public void Write(int count)
         {
             writer.Write(buffer, 0, count);
             writer.Flush();
         }
+
         public void Dispose()
         {
             writer.Close();
