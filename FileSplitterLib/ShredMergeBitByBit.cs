@@ -27,6 +27,12 @@ namespace FileSplitterLib
         static byte[] BYTE_MASK = new byte[] { 1, 2, 4, 8, 16, 32, 64, 128 };
 
         const byte LESS_SIG_MASK = 0x1;
+
+        public void Merge(Stream target, Stream[] sources, byte[] header)
+        {
+
+        }
+
         public void Merge(string target, string source, Type readType, Type writeType)
         {
             if (!readType.GetInterfaces().Contains(typeof(IGenReader)))
@@ -129,6 +135,12 @@ namespace FileSplitterLib
                 }
             }
         }
+
+        public void Split(Stream[] targets, Stream source, byte numberOfPar)
+        {
+
+        }
+
         public void Shred(string source, Type readType, Type writeType, byte numberOfPart)
         {
             if (!readType.GetInterfaces().Contains(typeof(IGenReader)))

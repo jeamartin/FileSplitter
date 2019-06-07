@@ -11,7 +11,7 @@ using System.IO;
 namespace FileSplitterLib
 {
     [Export(typeof(IGenReader))]
-    public class HttpGet: IGenReader
+    public class HttpGet : IGenReader
     {
         MemoryStream stream;
         int bufferSize;
@@ -23,13 +23,20 @@ namespace FileSplitterLib
 
         public string Protocol { get => "http"; }
 
-        public void Open(string targetUri)
-        {
-            HttpClient client = new HttpClient();
+        public Stream Reader { get => stream; }
 
-            HttpResponseMessage response = client.GetAsync(targetUri).Result;
-            
-            stream = new MemoryStream(response.Content.ReadAsByteArrayAsync().Result);
+        public void Open(string target)
+        {
+            if (target is string)
+            {
+                HttpClient client = new HttpClient();
+
+                HttpResponseMessage response = client.GetAsync(target as string).Result;
+
+                stream = new MemoryStream(response.Content.ReadAsByteArrayAsync().Result);
+            }
+            else
+                throw new Exception("invalid type");
         }
 
         public int Read(int count)

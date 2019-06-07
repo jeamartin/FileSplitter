@@ -34,6 +34,61 @@ namespace FileSplitterLib
         static int READ_BYTE_SIZE = SECRET_BYTE_SIZE-1; //Sans le -1 on arrive sur une imprecision qui rend le résultat faux
 
 
+        public void Merge(Stream target, Stream[] sources, byte[] header)
+        {
+            byte[] buffer = new byte[READ_BYTE_SIZE];
+
+            if (sources.Length < 2)
+                throw new ArgumentException("You need at least 2 sources");
+
+            //ensure all the source stream positions are after the header.
+            foreach (var source in sources)
+                if (source.Position < header.Length)
+                    source.Position = header.Length;
+
+            byte numberOfPart = Reusables.GetQtyTotal(header);
+            byte indexOfSource = Reusables.GetIndex(header);
+            long srcLength = Reusables.GetLengthFromHeader(header);
+            bool oneEndOfFile = false;
+
+            //byte[] byteBuffer = new byte[SECRET_BYTE_SIZE];
+            long writedLength = 0;
+            while (!oneEndOfFile)
+            {
+                BigInteger[] shares = new BigInteger[numberOfPart];
+                // retrouver STORE_BYTE_SIZE byte de toutes les parties
+                for (byte i = 0; i < numberOfPart; i++)
+                {
+                    if (sources[i].Read(buffer, 0, READ_BYTE_SIZE) > 0) // take care of endianess here 
+                        shares[i] = new BigInteger(buffer);
+                    else
+                        oneEndOfFile = true;
+                }
+                if (!oneEndOfFile)
+                {
+                    BigInteger bi = lagrangeInterpolate(shares);
+                    //byte[] recover = oneByteArray((byte)(bi));//bi = {9223372036854775746}
+                    //byte[] recover = BitConverter.GetBytes((UInt32)bi);
+                    byte[] recover = bi.ToByteArray();
+
+                    int length2Write = READ_BYTE_SIZE;
+
+                    if (writedLength + READ_BYTE_SIZE > srcLength) //avoid writing extra bit if not necessary
+                        length2Write = (int)(srcLength - writedLength);
+
+                    if (recover.Length == READ_BYTE_SIZE)
+                        buffer = recover;
+                    else //the array may be to long (because of sign bit) or to short (eof)
+                        Array.Copy(recover, buffer, recover.Length > READ_BYTE_SIZE ? READ_BYTE_SIZE : recover.Length);
+
+                    target.Write(buffer, 0, READ_BYTE_SIZE);
+
+                    writedLength += length2Write;
+                }
+            }
+        }
+
+
         public void Merge(string target, string source, Type readType, Type writeType)
         {
             //test(); 
@@ -274,6 +329,49 @@ namespace FileSplitterLib
         {
             return (((a % b) + b) % b);
         }
+
+        public void Split(Stream[] targets, Stream source, byte numberOfPart)
+        {
+            byte[] buffer = new byte[READ_BYTE_SIZE];
+            /*long sourceLength = (new FileInfo(source)).Length; // a déplacer dans une méthode non couplée (ExtFile)
+            //écriture des metainfos en header.
+            for (byte i = 0; i < numberOfPart; i++)
+            {
+                Array.Copy(Reusables.GetHeader(sourceLength, numberOfPart, i), writer[i].Buffer, 10);
+                writer[i].Write(10);
+            }
+            int qtyRead = 0;
+
+            while ((qtyRead = reader.Read(READ_BYTE_SIZE)) > 0)
+            {
+                byte[] ubytes = new byte[READ_BYTE_SIZE + 1];//il faut lire un nombre entier positif.
+                reader.Buffer.CopyTo(ubytes, 0);
+                ubytes[READ_BYTE_SIZE] = 0;
+                polys[0] = new BigInteger(ubytes);//BitConverter.ToUInt32(curRead, 0);//curRead[i];//new BigInteger(curRead); 
+                for (int inum = 1; inum < polys.Length; inum++)
+                    polys[inum] = randomInRange(rng, 0, RND_UPPER);
+
+
+                for (byte j = 0; j < numberOfPart; j++)
+                {
+                    BigInteger ev = evalPoly(polys, j + 1);
+
+                    byte[] share = ev.ToByteArray(); // BitConverter.GetBytes(ev);
+
+                    for (int k = 0; k < writer[j].BufferSize; k++)
+                        writer[j].Buffer[k] = 0;
+
+                    share.CopyTo(writer[j].Buffer, 0);
+
+                    //if (share.Length != STORE_BYTE_SIZE)
+                    //    Console.WriteLine("not 16 bytes bigint detected >" + new BigInteger(share) +"><"+ new BigInteger(paddedShare));
+
+                    //T
+                    writer[j].Write(writer[j].Buffer.Length);
+                }
+            }*/
+        }
+
         public void Shred(string source, Type readType, Type writeType, byte numberOfPart)
         {
             if (!readType.GetInterfaces().Contains(typeof(IGenReader)))

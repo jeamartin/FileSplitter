@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace FileSplitterLib
 {
-    [Export(typeof(IGenWriter))]
-    public class FileWriter : IGenWriter
+    [Export(typeof(IGenReader))]
+    public class MemReader : IGenReader
     {
-        FileStream writer;
+        MemoryStream reader;
+        int bufferOffset = 0;
         int bufferSize;
         byte[] buffer;
 
@@ -20,28 +21,28 @@ namespace FileSplitterLib
 
         public byte[] Buffer { get => buffer; set => buffer = value; }
 
-        public string Protocol { get => "file"; }
+        public string Protocol { get => "memory"; }
 
-        public Stream Writer { get => writer; }
-
+        public Stream Reader { get => reader; }
+        //open
         public void Open(string target)
         {
-            if(target is string)
-                writer = new FileStream(target as string, FileMode.Create, FileAccess.Write);
-            else
+           /* if(target is byte[])
+                reader = new MemoryStream(target as byte[]);
+            else*/
                 throw new Exception("invalid type");
         }
-
-        public void Write(int count)
+        //read chunk
+        public int Read(int count)
         {
-            writer.Write(buffer, 0, count);
-            writer.Flush();
+            return reader.Read(buffer, bufferOffset, count);
         }
-
+        //close
         public void Dispose()
         {
-            writer.Close();
-            writer.Dispose();
+            reader.Close();
+            reader.Dispose();
         }
+
     }
 }

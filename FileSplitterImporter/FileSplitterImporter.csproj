@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller.cs" />
     <Compile Include="ImportedFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reusables.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FileSplitterDef\FileSplitterDef.csproj">

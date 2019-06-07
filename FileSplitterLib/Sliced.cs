@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace FileSplitterLib
 {
+    /*
     [Export(typeof(IFileMerger))]
     [Export(typeof(IFileSpliter))]
     [PartCreationPolicy(CreationPolicy.Shared)]
-
+    
     class Sliced : IFileSpliter, IFileMerger
     {
         public string UserName
@@ -25,7 +26,6 @@ namespace FileSplitterLib
             get { return new Guid("2A63D590-46FC-4054-A3BF-BC9433267172"); }
         }
 
-        //public void Merge(/*collection de tableau de byte en lecture*/, /*tableau d'indices de lecture*/,   /*ref tableau de bye en écriture*/, /*indice d'écriture*/) 
 
         public void Merge(string target, string source, Type readType, Type writeType)
         {
@@ -86,5 +86,5 @@ namespace FileSplitterLib
                 }
             }
         }
-    }
+    }*/
 }

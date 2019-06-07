@@ -79,7 +79,7 @@ namespace FileSplitterTests
         [TestMethod]
         public void SplitMergeEvenFileByEvenSliced()
         {
-            SplitMerge(EvenFileTest, "EvenByteFile", "Sliced", "file", 2);
+            //SplitMerge(EvenFileTest, "EvenByteFile", "Sliced", "file", 2);
         }
 
         [TestMethod]
@@ -105,6 +105,19 @@ namespace FileSplitterTests
         {
             SplitMerge(LongFileTest, "oldjoke", "Shamirs", "file", 3);
         }
+
+
+        [TestMethod]
+        public void TestMergeStreamShamirs()
+        {
+            var sh = factory.GetSpliterByProtocol(factory.GetSpliterIdByName("Shamirs"));
+            sh.Shred("oldjoke.tst", factory.GetReaderTypeByProtocol("file"), factory.GetWriterTypeByProtocol("file"), 2); //create EvenByteFile.tstshrd.000 & EvenByteFile.tstshrd.001
+
+            var ctrl = new Controller();
+            ctrl.Merge("oldjokeMergeStream.tst", "oldjoke.tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol("file"), factory.GetWriterTypeByProtocol("file"), factory.GetMergerType("Shamirs"));
+
+        }
+
 
         void SplitMerge(byte[] testContent, string fileName, string splitProtocol, string RWProtocol, byte numberOfPart)
         {

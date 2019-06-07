@@ -131,6 +131,11 @@ namespace FileSplitterImporter
             return this?.GetWriterList(value).FirstOrDefault().Value.GetType();
         }
 
+        public Type GetMergerType(string value)
+        {
+            return mergers?.Where(s => s.Value.UserName == value).FirstOrDefault().Value.GetType();
+        }
+
         public int AvailableNumberOfProtocol
         {
             get { return (sources?.Count() ?? 0); }

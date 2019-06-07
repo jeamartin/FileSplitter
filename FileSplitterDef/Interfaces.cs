@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FileSplitterDef
 {
+    [Obsolete]
     public static class FileSplitterCommon
     {
         public const string FILE_EXT = "shrd";
@@ -14,18 +16,20 @@ namespace FileSplitterDef
     public interface IGenReader : IBufferized, IDisposable
     {
         string Protocol { get; }
+        Stream Reader { get; }
         //open
-        void Open(string targetUri);
+        void Open(string target);
         //read chunk
         int Read(int count);
-        //cloes
+        //close
         new void Dispose();
     }
     public interface IGenWriter : IBufferized, IDisposable
     {
         string Protocol { get; }
+        Stream Writer { get; }
         //open
-        void Open(string targetUri);
+        void Open(string target);
         //read chunk
         void Write(int count);
         //close
@@ -43,12 +47,16 @@ namespace FileSplitterDef
     {
         string UserName { get; }
         Guid Protocol { get; }
+        [Obsolete]
         void Merge(string target, string source, Type readType, Type writeType);
+        void Merge(Stream target, Stream[] sources, byte[] header);
     }
     public interface IFileSpliter
     {
         string UserName { get; }
         Guid Protocol { get; }
+        [Obsolete]
         void Shred(string source, Type readType, Type writeType, byte numberOfPart);
+        void Split(Stream[] targets, Stream source, byte numberOfPart);
     }
 }

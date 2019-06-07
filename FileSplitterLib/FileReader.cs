@@ -23,10 +23,15 @@ namespace FileSplitterLib
 
         public string Protocol { get => "file"; }
 
+        public Stream Reader { get => reader; }
+
         //open
-        public void Open(string targetUri) 
+        public void Open(string target) 
         {
-            reader = new FileStream(targetUri, FileMode.Open, FileAccess.Read); //File.Open(targetUri, FileMode.Open));
+            if (target is string)
+                reader = new FileStream(target as string, FileMode.Open, FileAccess.Read); //File.Open(targetUri, FileMode.Open));
+            else
+                throw new Exception("invalid type");
         }
         //read chunk
         public int Read(int count)
@@ -36,8 +41,11 @@ namespace FileSplitterLib
         //close
         public void Dispose()
         {
-            reader.Close();
-            reader.Dispose();
+            if (reader != null)
+            {
+                reader.Close();
+                reader.Dispose();
+            }
         }
     }
 }
