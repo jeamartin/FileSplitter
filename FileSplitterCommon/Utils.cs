@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FileSplitterDef
+namespace FileSplitterCommon
 {
-    public static class Reusables
+    public static class Utils
     {
+        public const string FILE_EXT = "shrd";
 
         public static byte[] OneByteArray(byte b)
         {
@@ -21,13 +21,13 @@ namespace FileSplitterDef
         public static string WriteFileName(string source, string targetFolder, byte index)
         {
             string ret = (targetFolder.LastIndexOf(@"\") == targetFolder.Length - 1 ? targetFolder : targetFolder + Path.DirectorySeparatorChar) +
-                Path.GetFileName(source) + "." + (index).ToString().PadLeft(3, '0') + "." + FileSplitterCommon.FILE_EXT;
+                Path.GetFileName(source) + "." + (index).ToString().PadLeft(3, '0') + "." + Utils.FILE_EXT;
             return ret;
         }
 
         public static string GetFileNameByIndex(string source, byte index)
         {
-            return source.Substring(0, source.Length - 8) + (index).ToString().PadLeft(3, '0') + "." + FileSplitterCommon.FILE_EXT;
+            return source.Substring(0, source.Length - 8) + (index).ToString().PadLeft(3, '0') + "." + Utils.FILE_EXT;
         }
 
         public static long GetLengthFromHeader(byte[] header)

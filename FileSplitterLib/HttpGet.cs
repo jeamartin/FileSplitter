@@ -25,6 +25,8 @@ namespace FileSplitterLib
 
         public Stream Reader { get => stream; }
 
+        public long Length { get { return stream.Length; } }
+
         public void Open(string target)
         {
             if (target is string)

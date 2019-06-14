@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSplitterLib", "FileSpli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSplitterWF", "FileSplitterWF\FileSplitterWF.csproj", "{7F922FD7-A082-411E-83F0-91B7DF53625C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSplitterCommon", "FileSplitterCommon\FileSplitterCommon.csproj", "{E3E8F95D-CD67-43F5-B7CE-1EFF6C6A2E50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{7F922FD7-A082-411E-83F0-91B7DF53625C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F922FD7-A082-411E-83F0-91B7DF53625C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F922FD7-A082-411E-83F0-91B7DF53625C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3E8F95D-CD67-43F5-B7CE-1EFF6C6A2E50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3E8F95D-CD67-43F5-B7CE-1EFF6C6A2E50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3E8F95D-CD67-43F5-B7CE-1EFF6C6A2E50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3E8F95D-CD67-43F5-B7CE-1EFF6C6A2E50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

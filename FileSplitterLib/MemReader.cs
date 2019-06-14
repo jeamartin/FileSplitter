@@ -24,6 +24,8 @@ namespace FileSplitterLib
         public string Protocol { get => "memory"; }
 
         public Stream Reader { get => reader; }
+
+        public long Length { get { return reader.Length; } }
         //open
         public void Open(string target)
         {

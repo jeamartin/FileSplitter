@@ -1,8 +1,7 @@
 ﻿TODO 
 
-- Generalize the format header infos into FileSplitterDef Reusables.
-- Extend header info the format below
-
+- OK Extend header info the format in FileSplitterCommon.Header
+- Check for code reorganization
 
 Idées :
 

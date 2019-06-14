@@ -93,6 +93,14 @@ namespace FileSplitterImporter
             return (IFileSpliter)spliters?.Where(s => s.Value.Protocol == value).FirstOrDefault().Value;
         }
 
+        public Type GetMergerTypeByProtocol(Guid value)
+        {
+            var ret = mergers?.Where(s => s.Value.Protocol == value).FirstOrDefault()?.Value?.GetType();
+            if (ret == null)
+                throw new Exception("Split format unknown.");
+            return ret;
+        }
+
         public Guid GetMergerIdByName(string name)
         {
             foreach (var com in mergers)

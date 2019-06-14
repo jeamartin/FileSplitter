@@ -64,7 +64,7 @@ namespace FileSplitterLib
                         PartIndex = 0,
                         TotalPartCount = numberOfPart,
                         SplitFormat = Protocol,
-                        OriginalFileLength = (ulong)sourceLength,
+                        OriginalFileLength = (long)sourceLength,
                         FileName = Encoding.Unicode.GetBytes(Path.GetFileName(source)),
                         OriginalFileNameLength = (ushort) Encoding.Unicode.GetByteCount(Path.GetFileName(source)),
                     };

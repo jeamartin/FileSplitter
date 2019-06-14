@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace FileSplitterDef
 {
-    [Obsolete]
     public static class FileSplitterCommon
     {
         public const string FILE_EXT = "shrd";
@@ -17,6 +16,7 @@ namespace FileSplitterDef
     {
         string Protocol { get; }
         Stream Reader { get; }
+        long Length { get; }
         //open
         void Open(string target);
         //read chunk
@@ -49,7 +49,9 @@ namespace FileSplitterDef
         Guid Protocol { get; }
         [Obsolete]
         void Merge(string target, string source, Type readType, Type writeType);
+        [Obsolete]
         void Merge(Stream target, Stream[] sources, byte[] header);
+        void Merge(Stream target, Stream[] sources, int position, byte numberOfPart, long totalLength);
     }
     public interface IFileSpliter
     {

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace FileSplitterTests
             CreateFile("EvenByteFile.tst", EvenFileTest);
             CreateFile("OddByteFile.tst", OddFileTest);
             CreateFile("oldjoke.tst", LongFileTest);
+            CreateFile("oldjokeshamir.tst", LongFileTest);
+            CreateFile("oldjokecopy.tst", LongFileTest);
         }
 
         [TestMethod]
@@ -97,7 +100,7 @@ namespace FileSplitterTests
         [TestMethod]
         public void SplitMergeLongFileByEvenShamirs()
         {
-            SplitMerge(LongFileTest, "oldjoke", "Shamirs", "file", 2);
+            SplitMerge(LongFileTest, "oldjokeshamir", "Shamirs", "file", 2);
         }
 
         [TestMethod]
@@ -107,25 +110,53 @@ namespace FileSplitterTests
         }
 
 
-        [TestMethod]
+        /*[TestMethod]
         public void TestMergeStreamShamirs()
         {
-            var sh = factory.GetSpliterByProtocol(factory.GetSpliterIdByName("Shamirs"));
-            sh.Shred("oldjoke.tst", factory.GetReaderTypeByProtocol("file"), factory.GetWriterTypeByProtocol("file"), 2); //create EvenByteFile.tstshrd.000 & EvenByteFile.tstshrd.001
-
             var ctrl = new Controller();
-            ctrl.Merge("oldjokeMergeStream.tst", "oldjoke.tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol("file"), factory.GetWriterTypeByProtocol("file"), factory.GetMergerType("Shamirs"));
 
-        }
+            ctrl.Split("oldjokecopy.tst", factory.GetReaderTypeByProtocol("file"), factory.GetWriterTypeByProtocol("file"), factory.GetMergerType("Shamirs"), 2);
+            ctrl.Merge("oldjokecopyMergeStream.tst", "oldjokecopy.tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol("file"), factory.GetWriterTypeByProtocol("file"), factory.GetMergerType("Shamirs"));
+
+            using (var reader = factory.GetReaderByProtocol("file"))
+            {
+                using (var result = factory.GetReaderByProtocol("file"))
+                {
+                    reader.Open("oldjokecopy.tst");
+                    //reader.Open("oldjokeshamir.tst.000." + FileSplitterCommon.FILE_EXT);
+                    reader.BufferSize = LongFileTest.Length;
+                    reader.Read(LongFileTest.Length);
+
+                    result.Open("oldjokecopyMergeStream.tst");
+                    //result.Open("oldjokecopy.tst.000." + FileSplitterCommon.FILE_EXT);
+                    result.BufferSize = LongFileTest.Length;
+                    result.Read(LongFileTest.Length);
+
+                    for (int i = 0; i < reader.BufferSize; i++)
+                        if (reader.Buffer[i] != result.Buffer[i])
+                            throw new Exception("Contents are different !");
+                }
+            }
+
+        }*/
 
 
         void SplitMerge(byte[] testContent, string fileName, string splitProtocol, string RWProtocol, byte numberOfPart)
         {
-            var sh = factory.GetSpliterByProtocol(factory.GetSpliterIdByName(splitProtocol));
-            sh.Shred(fileName + ".tst", factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol), numberOfPart); //create EvenByteFile.tstshrd.000 & EvenByteFile.tstshrd.001
+            var ctrl = new Controller();
 
-            var mg = factory.GetMergerByProtocol(factory.GetSpliterIdByName(splitProtocol));
-            mg.Merge(fileName + "Merge.tst", fileName + ".tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol));
+            //ctrl.Split(fileName + ".tst", factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol), factory.GetMergerType(splitProtocol), 2);
+
+            ctrl.Split(fileName + ".tst", new FileInfo(fileName + ".tst").Length, "", factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol), factory.GetMergerType(splitProtocol), numberOfPart);
+
+            //var sh = factory.GetSpliterByProtocol(factory.GetSpliterIdByName(splitProtocol));
+            //sh.Shred(fileName + ".tst", factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol), numberOfPart); //create EvenByteFile.tstshrd.000 & EvenByteFile.tstshrd.001
+
+            //var mg = factory.GetMergerByProtocol(factory.GetSpliterIdByName(splitProtocol));
+            //mg.Merge(fileName + "Merge.tst", fileName + ".tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol));
+
+            //ctrl.Merge(fileName + "Merge.tst", fileName + ".tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol), factory.GetMergerType(splitProtocol));
+            ctrl.Merge(fileName + "Merge.tst", fileName + ".tst.000." + FileSplitterCommon.FILE_EXT, factory.GetReaderTypeByProtocol(RWProtocol), factory.GetWriterTypeByProtocol(RWProtocol));
 
             //var buffer = new byte[testContent.Length];
             using (var reader = factory.GetReaderByProtocol(RWProtocol))
@@ -146,8 +177,8 @@ namespace FileSplitterTests
 
             try
             {
-                System.IO.File.Delete("EvenByteFile.tst");
-                System.IO.File.Delete("OddByteFile.tst");
+                //System.IO.File.Delete("EvenByteFile.tst");
+                //System.IO.File.Delete("OddByteFile.tst");
             }
             catch
             {
