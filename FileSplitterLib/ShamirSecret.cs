@@ -31,11 +31,11 @@ namespace FileSplitterLib
 
         static BigInteger RND_UPPER = BigInteger.Pow(2, 1023) - 1;//524287;//65535;//2147483647; //as secure as 32 bit secure :/ 
 
-        static int SECRET_BYTE_SIZE = RND_UPPER.ToByteArray().Length;
-        static int READ_BYTE_SIZE = SECRET_BYTE_SIZE-1; //Sans le -1 on arrive sur une imprecision qui rend le résultat faux
+        static readonly int SECRET_BYTE_SIZE = RND_UPPER.ToByteArray().Length;
+        static readonly int READ_BYTE_SIZE = SECRET_BYTE_SIZE-1; //Sans le -1 on arrive sur une imprecision qui rend le résultat faux
 
 
-        public void Merge(Stream target, Stream[] sources, /*Header header,*/ int position, byte numberOfPart, long totalLength)
+        public void Merge(Stream target, Stream[] sources, int position, byte numberOfPart, long totalLength)
         {
             if (sources.Length < 2)
                 throw new ArgumentException("You need at least 2 sources");
@@ -83,154 +83,35 @@ namespace FileSplitterLib
                 }
             }
         }
-        public void Merge(Stream target, Stream[] sources, byte[] header)
+
+        public void Split(Stream[] targets, Stream source, byte numberOfPart)
         {
-            if (sources.Length < 2)
-                throw new ArgumentException("You need at least 2 sources");
+            byte[] buffer = new byte[READ_BYTE_SIZE];
 
-            //ensure all the source stream positions are after the header.
-            foreach (var source in sources)
-                if (source.Position < header.Length)
-                    source.Position = header.Length;
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            BigInteger[] polys = new BigInteger[numberOfPart];
 
-            byte numberOfPart = Utils.GetQtyTotal(header);
-            byte indexOfSource = Utils.GetIndex(header);
-            long srcLength = Utils.GetLengthFromHeader(header);
-            bool oneEndOfFile = false;
+            int qtyRead = 0;
 
-            byte[] byteBuffer = new byte[SECRET_BYTE_SIZE];
-            long writedLength = 0;
-            while (!oneEndOfFile)
+            while ((qtyRead = source.Read(buffer, 0, READ_BYTE_SIZE)) > 0)
             {
-                BigInteger[] shares = new BigInteger[numberOfPart];
-                // retrouver STORE_BYTE_SIZE byte de toutes les parties
-                for (byte i = 0; i < numberOfPart; i++)
+                byte[] ubytes = new byte[READ_BYTE_SIZE + 1];//il faut lire un nombre entier positif.
+                //byte[] writeBuffer = new byte[SECRET_BYTE_SIZE];
+                buffer.CopyTo(ubytes, 0);
+                ubytes[READ_BYTE_SIZE] = 0;
+                polys[0] = new BigInteger(ubytes);//BitConverter.ToUInt32(curRead, 0);//curRead[i];//new BigInteger(curRead); 
+                for (int inum = 1; inum < polys.Length; inum++)
+                    polys[inum] = RandomInRange(rng, 0, RND_UPPER);
+
+                for (byte j = 0; j < numberOfPart; j++)
                 {
-                    if (sources[i].Read(byteBuffer, 0, SECRET_BYTE_SIZE) > 0) // take care of endianess here 
-                        shares[i] = new BigInteger(byteBuffer);
-                    else
-                        oneEndOfFile = true;
-                }
-                if (!oneEndOfFile)
-                {
-                    BigInteger bi = LagrangeInterpolate(shares);
-                    byte[] recover = bi.ToByteArray();
+                    BigInteger ev = EvalPoly(polys, j + 1);
+                    byte[] share = ev.ToByteArray(); // BitConverter.GetBytes(ev);
 
-                    int length2Write = READ_BYTE_SIZE;
+                    byte[] paddedShare = new byte[SECRET_BYTE_SIZE];
 
-                    if (writedLength + READ_BYTE_SIZE > srcLength) //avoid writing extra bit if not necessary
-                        length2Write = (int)(srcLength - writedLength);
-
-                    byte[] writeBuffer = new byte[READ_BYTE_SIZE];
-
-                    if (recover.Length == READ_BYTE_SIZE)
-                        writeBuffer = recover;
-                    else //the array may be to long (because of sign bit) or to short (eof)
-                        Array.Copy(recover, writeBuffer, recover.Length > READ_BYTE_SIZE ? READ_BYTE_SIZE : recover.Length);
-
-                    target.Write(writeBuffer, 0, READ_BYTE_SIZE);
-
-                    writedLength += length2Write;
-                }
-            }
-        }
-
-
-        public void Merge(string target, string source, Type readType, Type writeType)
-        {
-            if (!readType.GetInterfaces().Contains(typeof(IGenReader)))
-                throw new Exception("Incompatible type reader");
-            if (!writeType.GetInterfaces().Contains(typeof(IGenWriter)))
-                throw new Exception("Incompatible type writer");
-
-            //1déterminer le nombre de partie en lisant le header du fichier source
-            using (var reader = (IGenReader)Activator.CreateInstance(readType))
-            {
-                reader.Open(source);
-                reader.BufferSize = 10;
-                if (reader.Read(10) < 10)
-                {
-                    throw new Exception("bad shrd file format.");
-                }
-                byte numberOfPart = Utils.GetQtyTotal(reader.Buffer);
-                byte indexOfSource = Utils.GetIndex(reader.Buffer);
-                long srcLength = Utils.GetLengthFromHeader(reader.Buffer);
-
-                //2vérifier la présence des fichiers sources nécessaires
-                for (byte i = 0; i < numberOfPart; i++)
-                {
-                    string fileFullPath = Utils.GetFileNameByIndex(source, i);
-                    if (!File.Exists(fileFullPath))
-                        throw new Exception("File not found" + fileFullPath);
-                }
-                //3instancier les readers nécessaires
-                IGenReader[] readers = new IGenReader[numberOfPart];
-                try
-                {
-                    for (byte i = 0; i < numberOfPart; i++)
-                    {
-                        if (i == indexOfSource)
-                            readers[i] = reader;
-                        else
-                            readers[i] = (IGenReader)Activator.CreateInstance(readType);
-                    }
-                    //4avancer le pointeur jusqu'à la fin de l'en-tête. 
-                    for (byte i = 0; i < numberOfPart; i++)
-                    {
-                        readers[i].BufferSize = SECRET_BYTE_SIZE;
-                        if (i != indexOfSource)
-                        {
-                            readers[i].Open(Utils.GetFileNameByIndex(source, i));
-                            readers[i].Read(10);
-                        }
-                    }
-                    //5instancier le writer nécessaire (target)
-                    using (var writer = (IGenWriter)Activator.CreateInstance(writeType))
-                    {
-                        writer.Open(target);
-                        writer.BufferSize = READ_BYTE_SIZE;
-                        bool oneEndOfFile = false;
-
-                        //byte[] byteBuffer = new byte[SECRET_BYTE_SIZE];
-                        long writedLength = 0;
-                        while (!oneEndOfFile)
-                        {
-                            BigInteger[] shares = new BigInteger[numberOfPart];
-                            //6 retrouver STORE_BYTE_SIZE byte de toutes les parties
-                            for (byte i = 0; i < numberOfPart; i++)
-                            {
-                                if (readers[i].Read(SECRET_BYTE_SIZE) > 0) // take care of endianess here 
-                                    shares[i] = new BigInteger(readers[i].Buffer);
-                                else
-                                    oneEndOfFile = true;
-                            }
-                            if (!oneEndOfFile)
-                            {
-                                BigInteger bi = LagrangeInterpolate(shares);
-                                byte[] recover = bi.ToByteArray();
-
-                                int length2Write = READ_BYTE_SIZE;
-
-                                if (writedLength + READ_BYTE_SIZE > srcLength) //avoid writing extra bit if not necessary
-                                    length2Write = (int)(srcLength - writedLength);
-
-                                if (recover.Length == writer.Buffer.Length)
-                                    writer.Buffer = recover;
-                                else //the array may be to long (because of sign bit) or to short (eof)
-                                    Array.Copy(recover, writer.Buffer, recover.Length>READ_BYTE_SIZE?READ_BYTE_SIZE:recover.Length);
-                                                                
-                                writer.Write(length2Write);
-
-                                writedLength += length2Write;// recover.Length;
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    for (byte i = 0; i < numberOfPart; i++)
-                        if (i != indexOfSource && readers[i] != null)
-                            readers[i].Dispose();
+                    share.CopyTo(paddedShare, 0);
+                    targets[j].Write(paddedShare, 0, SECRET_BYTE_SIZE);
                 }
             }
         }
@@ -266,10 +147,10 @@ namespace FileSplitterLib
             num = 0;
             for (int i = 0; i < shares.Length; i++)
             {
-                num += divmod(MathMod(nums[i] * den * shares[i], RND_UPPER), dens[i], RND_UPPER);
+                num += Divmod(MathMod(nums[i] * den * shares[i], RND_UPPER), dens[i], RND_UPPER);
             }
 
-            return MathMod(divmod(num, den, RND_UPPER) + RND_UPPER, RND_UPPER);
+            return MathMod(Divmod(num, den, RND_UPPER) + RND_UPPER, RND_UPPER);
         }
 
         /// <summary>
@@ -292,9 +173,9 @@ namespace FileSplitterLib
         /// <param name="den">The den.</param>
         /// <param name="max">The maximum.</param>
         /// <returns>GDC * num</returns>
-        BigInteger divmod(BigInteger num, BigInteger den, BigInteger max)
+        BigInteger Divmod(BigInteger num, BigInteger den, BigInteger max)
         {
-            BigInteger gcd = findGCD(den, max);
+            BigInteger gcd = FindGCD(den, max);
             return num * gcd;
         }
 
@@ -318,13 +199,14 @@ namespace FileSplitterLib
             }
             return a / b;
         }
+
         /// <summary>
         /// Finds the GCD.
         /// </summary>
         /// <param name="a">a</param>
         /// <param name="b">b</param>
         /// <returns>the gdc</returns>
-        public BigInteger findGCD(BigInteger a, BigInteger b)
+        public BigInteger FindGCD(BigInteger a, BigInteger b)
         {
             BigInteger x = 0;
             BigInteger last_x = 1;
@@ -357,110 +239,6 @@ namespace FileSplitterLib
             return (((a % b) + b) % b);
         }
 
-        public void Split(Stream[] targets, Stream source, byte numberOfPart)
-        {
-            byte[] buffer = new byte[READ_BYTE_SIZE];
-
-            RandomNumberGenerator rng = RandomNumberGenerator.Create();
-            BigInteger[] polys = new BigInteger[numberOfPart];
-
-            int qtyRead = 0;
-
-            while ((qtyRead = source.Read(buffer, 0, READ_BYTE_SIZE)) > 0)
-            {
-                byte[] ubytes = new byte[READ_BYTE_SIZE + 1];//il faut lire un nombre entier positif.
-                //byte[] writeBuffer = new byte[SECRET_BYTE_SIZE];
-                buffer.CopyTo(ubytes, 0);
-                ubytes[READ_BYTE_SIZE] = 0;
-                polys[0] = new BigInteger(ubytes);//BitConverter.ToUInt32(curRead, 0);//curRead[i];//new BigInteger(curRead); 
-                for (int inum = 1; inum < polys.Length; inum++)
-                    polys[inum] = RandomInRange(rng, 0, RND_UPPER);
-
-                for (byte j = 0; j < numberOfPart; j++)
-                {
-                    BigInteger ev = EvalPoly(polys, j + 1);
-                    byte[] share = ev.ToByteArray(); // BitConverter.GetBytes(ev);
-
-                    byte[] paddedShare = new byte[SECRET_BYTE_SIZE];
-
-                    share.CopyTo(paddedShare, 0);
-                    targets[j].Write(paddedShare, 0, SECRET_BYTE_SIZE);
-                }
-            }
-        }
-
-        public void Shred(string source, Type readType, Type writeType, byte numberOfPart)
-        {
-            if (!readType.GetInterfaces().Contains(typeof(IGenReader)))
-                throw new Exception("Incompatible type reader");
-            if (!writeType.GetInterfaces().Contains(typeof(IGenWriter)))
-                throw new Exception("Incompatible type writer");
-
-            var writer = new IGenWriter[numberOfPart];
-            string targetFolder = Path.GetDirectoryName(source);
-            long sourceLength = (new FileInfo(source)).Length; // a déplacer dans une méthode non couplée (ExtFile)
-            //byte[] curRead = new byte[READ_BYTE_SIZE];
-
-            RandomNumberGenerator rng = RandomNumberGenerator.Create();//shouldn't be pseudo random...
-
-            BigInteger[] polys = new BigInteger[numberOfPart];
-            //polys[0] = 0;//secret place
-
-            using (var reader = (IGenReader)Activator.CreateInstance(readType))
-            {
-                reader.Open(source);
-                reader.BufferSize = READ_BYTE_SIZE;
-                try
-                {
-                    for (byte i = 0; i < numberOfPart; i++)
-                    {
-                        writer[i] = (IGenWriter)Activator.CreateInstance(writeType);
-                        writer[i].Open(Utils.WriteFileName(source, targetFolder, i));
-                        writer[i].BufferSize = SECRET_BYTE_SIZE;
-                    }
-                    //écriture des metainfos en header.
-                    for (byte i = 0; i < numberOfPart; i++)
-                    {
-                        Array.Copy(Utils.GetHeader(sourceLength, numberOfPart, i), writer[i].Buffer, 10);
-                        writer[i].Write(10);
-                    }
-                    int qtyRead = 0;
-
-                    while ((qtyRead = reader.Read(READ_BYTE_SIZE)) > 0)
-                    {
-                        byte[] ubytes = new byte[READ_BYTE_SIZE+1];//il faut lire un nombre entier positif.
-                        reader.Buffer.CopyTo(ubytes, 0);
-                        ubytes[READ_BYTE_SIZE] = 0;
-                        polys[0] = new BigInteger(ubytes);//BitConverter.ToUInt32(curRead, 0);//curRead[i];//new BigInteger(curRead); 
-                        for (int inum = 1; inum < polys.Length; inum++)
-                            polys[inum] = RandomInRange(rng, 0, RND_UPPER);
-
-
-                        for (byte j = 0; j < numberOfPart; j++)
-                        {
-                            BigInteger ev = EvalPoly(polys, j + 1);
-                            
-                            byte[] share = ev.ToByteArray(); // BitConverter.GetBytes(ev);
-
-                            for (int k = 0; k < writer[j].BufferSize; k++)
-                                writer[j].Buffer[k] = 0;
-
-                            share.CopyTo(writer[j].Buffer, 0);
-
-                            writer[j].Write(writer[j].Buffer.Length);
-                        }
-                    }
-                }
-                finally
-                {
-                    for (byte i = 0; i < numberOfPart; i++)
-                        if (writer != null)
-                            writer[i].Dispose();
-                }
-            }
-
-        }
-
         /// <summary>
         /// Create pseudo-random BigInteger. From https://stackoverflow.com/a/48855115/8165479
         /// </summary>
@@ -482,7 +260,7 @@ namespace FileSplitterLib
             min = 0;
             max += offset;
 
-            var value = randomInRangeFromZeroToPositive(rng, max) - offset;
+            var value = RandomInRangeFromZeroToPositive(rng, max) - offset;
             return value;
         }
 
@@ -492,7 +270,7 @@ namespace FileSplitterLib
         /// <param name="rng">The RNG.</param>
         /// <param name="max">The maximum.</param>
         /// <returns>A pseudo-random BigInteger</returns>
-        BigInteger randomInRangeFromZeroToPositive(RandomNumberGenerator rng, BigInteger max)
+        BigInteger RandomInRangeFromZeroToPositive(RandomNumberGenerator rng, BigInteger max)
         {
             BigInteger value;
             var bytes = max.ToByteArray();

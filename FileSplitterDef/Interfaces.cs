@@ -47,18 +47,12 @@ namespace FileSplitterDef
     {
         string UserName { get; }
         Guid Protocol { get; }
-        [Obsolete]
-        void Merge(string target, string source, Type readType, Type writeType);
-        [Obsolete]
-        void Merge(Stream target, Stream[] sources, byte[] header);
         void Merge(Stream target, Stream[] sources, int position, byte numberOfPart, long totalLength);
     }
     public interface IFileSpliter
     {
         string UserName { get; }
         Guid Protocol { get; }
-        [Obsolete]
-        void Shred(string source, Type readType, Type writeType, byte numberOfPart);
         void Split(Stream[] targets, Stream source, byte numberOfPart);
     }
 }

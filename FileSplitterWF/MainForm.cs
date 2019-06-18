@@ -18,11 +18,11 @@ namespace FileSplitterWF
             InitializeComponent();
         }
 
-        private void btnSelectFile_Click(object sender, EventArgs e)
+        private void BtnSelectFile_Click(object sender, EventArgs e)
         {
             openFileDialog.InitialDirectory = "c:\\";
             openFileDialog.Filter = "Shard files (*."+ FileSplitterCommon.FILE_EXT + ")|*." + FileSplitterCommon.FILE_EXT + "|All files (*.*)|*.*";
-            if (radioButtonMerge.Checked)
+            if (RadioButtonMerge.Checked)
                 openFileDialog.FilterIndex = 1;
             else
                 openFileDialog.FilterIndex = 2;
@@ -32,11 +32,11 @@ namespace FileSplitterWF
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                txtFilePath.Text = openFileDialog.FileName;
+                TxtFilePath.Text = openFileDialog.FileName;
             }
         }
 
-        private void btnStart_Click(object sender, EventArgs e)
+        private void BtnStart_Click(object sender, EventArgs e)
         {
 
         }

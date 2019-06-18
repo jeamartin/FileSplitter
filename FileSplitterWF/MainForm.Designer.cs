@@ -28,107 +28,107 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.radioButtonSplit = new System.Windows.Forms.RadioButton();
-            this.radioButtonMerge = new System.Windows.Forms.RadioButton();
-            this.txtFilePath = new System.Windows.Forms.TextBox();
+            this.RadioButtonSplit = new System.Windows.Forms.RadioButton();
+            this.RadioButtonMerge = new System.Windows.Forms.RadioButton();
+            this.TxtFilePath = new System.Windows.Forms.TextBox();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.labelAction = new System.Windows.Forms.Label();
-            this.lblFile = new System.Windows.Forms.Label();
-            this.btnSelectFile = new System.Windows.Forms.Button();
-            this.lblType = new System.Windows.Forms.Label();
-            this.cmbMethod = new System.Windows.Forms.ComboBox();
-            this.cmbQuantityOfParts = new System.Windows.Forms.ComboBox();
-            this.lblPartNumber = new System.Windows.Forms.Label();
-            this.btnStart = new System.Windows.Forms.Button();
+            this.LabelAction = new System.Windows.Forms.Label();
+            this.LblFile = new System.Windows.Forms.Label();
+            this.BtnSelectFile = new System.Windows.Forms.Button();
+            this.LblType = new System.Windows.Forms.Label();
+            this.CmbMethod = new System.Windows.Forms.ComboBox();
+            this.CmbQuantityOfParts = new System.Windows.Forms.ComboBox();
+            this.LblPartNumber = new System.Windows.Forms.Label();
+            this.BtnStart = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // radioButtonSplit
+            // RadioButtonSplit
             // 
-            this.radioButtonSplit.AutoSize = true;
-            this.radioButtonSplit.Location = new System.Drawing.Point(87, 15);
-            this.radioButtonSplit.Name = "radioButtonSplit";
-            this.radioButtonSplit.Size = new System.Drawing.Size(45, 17);
-            this.radioButtonSplit.TabIndex = 0;
-            this.radioButtonSplit.TabStop = true;
-            this.radioButtonSplit.Text = "&Split";
-            this.radioButtonSplit.UseVisualStyleBackColor = true;
+            this.RadioButtonSplit.AutoSize = true;
+            this.RadioButtonSplit.Location = new System.Drawing.Point(87, 15);
+            this.RadioButtonSplit.Name = "RadioButtonSplit";
+            this.RadioButtonSplit.Size = new System.Drawing.Size(45, 17);
+            this.RadioButtonSplit.TabIndex = 0;
+            this.RadioButtonSplit.TabStop = true;
+            this.RadioButtonSplit.Text = "&Split";
+            this.RadioButtonSplit.UseVisualStyleBackColor = true;
             // 
-            // radioButtonMerge
+            // RadioButtonMerge
             // 
-            this.radioButtonMerge.AutoSize = true;
-            this.radioButtonMerge.Location = new System.Drawing.Point(155, 15);
-            this.radioButtonMerge.Name = "radioButtonMerge";
-            this.radioButtonMerge.Size = new System.Drawing.Size(55, 17);
-            this.radioButtonMerge.TabIndex = 1;
-            this.radioButtonMerge.TabStop = true;
-            this.radioButtonMerge.Text = "&Merge";
-            this.radioButtonMerge.UseVisualStyleBackColor = true;
+            this.RadioButtonMerge.AutoSize = true;
+            this.RadioButtonMerge.Location = new System.Drawing.Point(155, 15);
+            this.RadioButtonMerge.Name = "RadioButtonMerge";
+            this.RadioButtonMerge.Size = new System.Drawing.Size(55, 17);
+            this.RadioButtonMerge.TabIndex = 1;
+            this.RadioButtonMerge.TabStop = true;
+            this.RadioButtonMerge.Text = "&Merge";
+            this.RadioButtonMerge.UseVisualStyleBackColor = true;
             // 
-            // txtFilePath
+            // TxtFilePath
             // 
-            this.txtFilePath.Location = new System.Drawing.Point(87, 44);
-            this.txtFilePath.Name = "txtFilePath";
-            this.txtFilePath.Size = new System.Drawing.Size(342, 20);
-            this.txtFilePath.TabIndex = 2;
+            this.TxtFilePath.Location = new System.Drawing.Point(87, 44);
+            this.TxtFilePath.Name = "TxtFilePath";
+            this.TxtFilePath.Size = new System.Drawing.Size(342, 20);
+            this.TxtFilePath.TabIndex = 2;
             // 
             // openFileDialog
             // 
             this.openFileDialog.FileName = "openFileDialog1";
             // 
-            // labelAction
+            // LabelAction
             // 
-            this.labelAction.AutoSize = true;
-            this.labelAction.Location = new System.Drawing.Point(17, 17);
-            this.labelAction.Name = "labelAction";
-            this.labelAction.Size = new System.Drawing.Size(37, 13);
-            this.labelAction.TabIndex = 0;
-            this.labelAction.Text = "&Action";
+            this.LabelAction.AutoSize = true;
+            this.LabelAction.Location = new System.Drawing.Point(17, 17);
+            this.LabelAction.Name = "LabelAction";
+            this.LabelAction.Size = new System.Drawing.Size(37, 13);
+            this.LabelAction.TabIndex = 0;
+            this.LabelAction.Text = "&Action";
             // 
-            // lblFile
+            // LblFile
             // 
-            this.lblFile.AutoSize = true;
-            this.lblFile.Location = new System.Drawing.Point(17, 51);
-            this.lblFile.Name = "lblFile";
-            this.lblFile.Size = new System.Drawing.Size(23, 13);
-            this.lblFile.TabIndex = 2;
-            this.lblFile.Text = "&File";
+            this.LblFile.AutoSize = true;
+            this.LblFile.Location = new System.Drawing.Point(17, 51);
+            this.LblFile.Name = "LblFile";
+            this.LblFile.Size = new System.Drawing.Size(23, 13);
+            this.LblFile.TabIndex = 2;
+            this.LblFile.Text = "&File";
             // 
-            // btnSelectFile
+            // BtnSelectFile
             // 
-            this.btnSelectFile.Location = new System.Drawing.Point(435, 42);
-            this.btnSelectFile.Name = "btnSelectFile";
-            this.btnSelectFile.Size = new System.Drawing.Size(24, 23);
-            this.btnSelectFile.TabIndex = 3;
-            this.btnSelectFile.Text = "...";
-            this.btnSelectFile.UseVisualStyleBackColor = true;
-            this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
+            this.BtnSelectFile.Location = new System.Drawing.Point(435, 42);
+            this.BtnSelectFile.Name = "BtnSelectFile";
+            this.BtnSelectFile.Size = new System.Drawing.Size(24, 23);
+            this.BtnSelectFile.TabIndex = 3;
+            this.BtnSelectFile.Text = "...";
+            this.BtnSelectFile.UseVisualStyleBackColor = true;
+            this.BtnSelectFile.Click += new System.EventHandler(this.BtnSelectFile_Click);
             // 
-            // lblType
+            // LblType
             // 
-            this.lblType.AutoSize = true;
-            this.lblType.Location = new System.Drawing.Point(17, 85);
-            this.lblType.Name = "lblType";
-            this.lblType.Size = new System.Drawing.Size(43, 13);
-            this.lblType.TabIndex = 4;
-            this.lblType.Text = "M&ethod";
+            this.LblType.AutoSize = true;
+            this.LblType.Location = new System.Drawing.Point(17, 85);
+            this.LblType.Name = "LblType";
+            this.LblType.Size = new System.Drawing.Size(43, 13);
+            this.LblType.TabIndex = 4;
+            this.LblType.Text = "M&ethod";
             // 
-            // cmbMethod
+            // CmbMethod
             // 
-            this.cmbMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbMethod.FormattingEnabled = true;
-            this.cmbMethod.Items.AddRange(new object[] {
+            this.CmbMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CmbMethod.FormattingEnabled = true;
+            this.CmbMethod.Items.AddRange(new object[] {
             "Confettis",
             "Shamirs"});
-            this.cmbMethod.Location = new System.Drawing.Point(87, 82);
-            this.cmbMethod.Name = "cmbMethod";
-            this.cmbMethod.Size = new System.Drawing.Size(121, 21);
-            this.cmbMethod.TabIndex = 5;
+            this.CmbMethod.Location = new System.Drawing.Point(87, 82);
+            this.CmbMethod.Name = "CmbMethod";
+            this.CmbMethod.Size = new System.Drawing.Size(121, 21);
+            this.CmbMethod.TabIndex = 5;
             // 
-            // cmbQuantityOfParts
+            // CmbQuantityOfParts
             // 
-            this.cmbQuantityOfParts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbQuantityOfParts.FormattingEnabled = true;
-            this.cmbQuantityOfParts.Items.AddRange(new object[] {
+            this.CmbQuantityOfParts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CmbQuantityOfParts.FormattingEnabled = true;
+            this.CmbQuantityOfParts.Items.AddRange(new object[] {
             "2",
             "3",
             "4",
@@ -138,46 +138,46 @@
             "8",
             "9",
             "10"});
-            this.cmbQuantityOfParts.Location = new System.Drawing.Point(338, 82);
-            this.cmbQuantityOfParts.Name = "cmbQuantityOfParts";
-            this.cmbQuantityOfParts.Size = new System.Drawing.Size(121, 21);
-            this.cmbQuantityOfParts.TabIndex = 6;
+            this.CmbQuantityOfParts.Location = new System.Drawing.Point(338, 82);
+            this.CmbQuantityOfParts.Name = "CmbQuantityOfParts";
+            this.CmbQuantityOfParts.Size = new System.Drawing.Size(121, 21);
+            this.CmbQuantityOfParts.TabIndex = 6;
             // 
-            // lblPartNumber
+            // LblPartNumber
             // 
-            this.lblPartNumber.AutoSize = true;
-            this.lblPartNumber.Location = new System.Drawing.Point(237, 85);
-            this.lblPartNumber.Name = "lblPartNumber";
-            this.lblPartNumber.Size = new System.Drawing.Size(84, 13);
-            this.lblPartNumber.TabIndex = 7;
-            this.lblPartNumber.Text = "Quantity of parts";
+            this.LblPartNumber.AutoSize = true;
+            this.LblPartNumber.Location = new System.Drawing.Point(237, 85);
+            this.LblPartNumber.Name = "LblPartNumber";
+            this.LblPartNumber.Size = new System.Drawing.Size(84, 13);
+            this.LblPartNumber.TabIndex = 7;
+            this.LblPartNumber.Text = "Quantity of parts";
             // 
-            // btnStart
+            // BtnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(155, 136);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(177, 26);
-            this.btnStart.TabIndex = 8;
-            this.btnStart.Text = "Start";
-            this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
+            this.BtnStart.Location = new System.Drawing.Point(155, 136);
+            this.BtnStart.Name = "BtnStart";
+            this.BtnStart.Size = new System.Drawing.Size(177, 26);
+            this.BtnStart.TabIndex = 8;
+            this.BtnStart.Text = "Start";
+            this.BtnStart.UseVisualStyleBackColor = true;
+            this.BtnStart.Click += new System.EventHandler(this.BtnStart_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(496, 180);
-            this.Controls.Add(this.btnStart);
-            this.Controls.Add(this.lblPartNumber);
-            this.Controls.Add(this.cmbQuantityOfParts);
-            this.Controls.Add(this.cmbMethod);
-            this.Controls.Add(this.lblType);
-            this.Controls.Add(this.btnSelectFile);
-            this.Controls.Add(this.lblFile);
-            this.Controls.Add(this.labelAction);
-            this.Controls.Add(this.txtFilePath);
-            this.Controls.Add(this.radioButtonMerge);
-            this.Controls.Add(this.radioButtonSplit);
+            this.Controls.Add(this.BtnStart);
+            this.Controls.Add(this.LblPartNumber);
+            this.Controls.Add(this.CmbQuantityOfParts);
+            this.Controls.Add(this.CmbMethod);
+            this.Controls.Add(this.LblType);
+            this.Controls.Add(this.BtnSelectFile);
+            this.Controls.Add(this.LblFile);
+            this.Controls.Add(this.LabelAction);
+            this.Controls.Add(this.TxtFilePath);
+            this.Controls.Add(this.RadioButtonMerge);
+            this.Controls.Add(this.RadioButtonSplit);
             this.Name = "MainForm";
             this.Text = "FileSplitter";
             this.ResumeLayout(false);
@@ -187,18 +187,18 @@
 
         #endregion
 
-        private System.Windows.Forms.RadioButton radioButtonSplit;
-        private System.Windows.Forms.RadioButton radioButtonMerge;
-        private System.Windows.Forms.TextBox txtFilePath;
+        private System.Windows.Forms.RadioButton RadioButtonSplit;
+        private System.Windows.Forms.RadioButton RadioButtonMerge;
+        private System.Windows.Forms.TextBox TxtFilePath;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.Windows.Forms.Label labelAction;
-        private System.Windows.Forms.Label lblFile;
-        private System.Windows.Forms.Button btnSelectFile;
-        private System.Windows.Forms.Label lblType;
-        private System.Windows.Forms.ComboBox cmbMethod;
-        private System.Windows.Forms.ComboBox cmbQuantityOfParts;
-        private System.Windows.Forms.Label lblPartNumber;
-        private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.Label LabelAction;
+        private System.Windows.Forms.Label LblFile;
+        private System.Windows.Forms.Button BtnSelectFile;
+        private System.Windows.Forms.Label LblType;
+        private System.Windows.Forms.ComboBox CmbMethod;
+        private System.Windows.Forms.ComboBox CmbQuantityOfParts;
+        private System.Windows.Forms.Label LblPartNumber;
+        private System.Windows.Forms.Button BtnStart;
     }
 }
 

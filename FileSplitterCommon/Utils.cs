@@ -30,32 +30,6 @@ namespace FileSplitterCommon
             return source.Substring(0, source.Length - 8) + (index).ToString().PadLeft(3, '0') + "." + Utils.FILE_EXT;
         }
 
-        public static long GetLengthFromHeader(byte[] header)
-        {
-            return BitConverter.ToInt64(header, 0);
-        }
-        public static byte GetIndex(byte[] header)
-        {
-            return header[8];
-        }
-
-        public static byte GetQtyTotal(byte[] header)
-        {
-            return header[9];
-        }
-
-        public static byte[] GetHeader(long sourceLength, byte numberOfPart, byte index)
-        {
-            byte[] length = BitConverter.GetBytes(sourceLength);
-
-            byte[] ret = new byte[10];
-
-            length.CopyTo(ret, 0);
-            ret[8] = index;
-            ret[9] = numberOfPart;
-            return ret;
-        }
-
         public static void InitByteArray(ref byte[] toInit)
         {
             for (int i = 0; i < toInit.Length; i++)

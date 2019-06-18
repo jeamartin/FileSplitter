@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProvTest", "ProvTest\ProvTest.csproj", "{8B0EFA80-C4EE-4464-B37F-AD75590AFE28}"
-	ProjectSection(ProjectDependencies) = postProject
-		{249F69D9-ACD3-4D31-B95B-64A7AE782D80} = {249F69D9-ACD3-4D31-B95B-64A7AE782D80}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSplitterTests", "FileSplitterTests\FileSplitterTests.csproj", "{F6E2BA7D-EC1B-4278-854F-4B17B28CAA21}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSplitterDef", "FileSplitterDef\FileSplitterDef.csproj", "{FB63E177-F6A3-4977-B7B1-2AEBA48D014E}"
@@ -26,10 +21,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8B0EFA80-C4EE-4464-B37F-AD75590AFE28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B0EFA80-C4EE-4464-B37F-AD75590AFE28}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B0EFA80-C4EE-4464-B37F-AD75590AFE28}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B0EFA80-C4EE-4464-B37F-AD75590AFE28}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F6E2BA7D-EC1B-4278-854F-4B17B28CAA21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F6E2BA7D-EC1B-4278-854F-4B17B28CAA21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6E2BA7D-EC1B-4278-854F-4B17B28CAA21}.Release|Any CPU.ActiveCfg = Release|Any CPU

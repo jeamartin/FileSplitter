@@ -14,9 +14,10 @@ namespace FileSplitterImporter
     public class ImportedFactory
     {
         static volatile ImportedFactory instance;
-        static object syncRoot = new object();
+        static readonly object syncRoot = new object();
         CompositionContainer container;
 
+#pragma warning disable IDE0044, 0649 //Disable warning about not initialize, hint
         [ImportMany(typeof(IGenReader))]
         IEnumerable<Lazy<IGenReader>> sources;
         [ImportMany(typeof(IGenWriter))]
@@ -25,6 +26,7 @@ namespace FileSplitterImporter
         IEnumerable<Lazy<IFileMerger>> mergers;
         [ImportMany(typeof(IFileSpliter))]
         IEnumerable<Lazy<IFileSpliter>> spliters;
+#pragma warning restore IDE0044, 0649
 
         public static ImportedFactory Instance
         {
@@ -155,7 +157,6 @@ namespace FileSplitterImporter
 
             foreach (Lazy<IGenReader> com in sources)
             {
-                //Console.WriteLine(com.Description);
                 result.Add(com.Value.Protocol);
             }
 
